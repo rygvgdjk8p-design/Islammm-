@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ғылыми детектив — интерактивті ойын</title>
+<style>
+:root{--bg:#0b1020;--panel:#151d33;--panel2:#1c2945;--text:#f4f7ff;--muted:#aab7d4;--accent:#6ee7d8;--gold:#ffd166;--good:#71e3a2;--bad:#ff7b8b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#1d3156 0,#0b1020 55%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;min-height:100vh}
+main{max-width:900px;margin:auto;padding:24px 16px 50px}.hero{text-align:center;padding:28px 16px 22px}.eyebrow{color:var(--accent);font-weight:800;letter-spacing:.15em;text-transform:uppercase;font-size:.8rem}
+h1{font-size:clamp(2rem,6vw,3.4rem);line-height:1.08;margin:10px 0}h1 span{color:var(--gold)}.subtitle{color:var(--muted);max-width:650px;margin:12px auto 0;line-height:1.6}
+.stats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:18px 0}.pill{background:#1b2944;border:1px solid #344564;border-radius:999px;padding:8px 13px;color:#dce7ff;font-size:.9rem}
+.card{background:linear-gradient(145deg,rgba(27,40,67,.97),rgba(17,25,44,.97));border:1px solid #344564;border-radius:22px;padding:clamp(18px,4vw,30px);box-shadow:0 18px 50px #0003;margin:16px 0}
+h2{margin:0 0 10px;font-size:1.5rem}.muted{color:var(--muted);line-height:1.55}.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:800;font-size:1rem;cursor:pointer;transition:transform .15s,filter .15s}.btn:hover{transform:translateY(-1px);filter:brightness(1.08)}.primary{background:var(--accent);color:#08202a}.secondary{background:#283957;color:var(--text);border:1px solid #435777}.gold{background:var(--gold);color:#2d2100}.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row .btn{flex:1}.hidden{display:none!important}.progress{height:8px;background:#293652;border-radius:99px;overflow:hidden;margin:17px 0}.progress div{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .25s}
+.kicker{color:var(--accent);font-size:.83rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.question{font-size:clamp(1.15rem,3.5vw,1.55rem);line-height:1.4;margin:12px 0 20px}.options{display:grid;gap:10px}.option{width:100%;text-align:left;background:#202e4a;border:1px solid #3c4f70;color:var(--text);border-radius:14px;padding:14px 16px;font-size:1rem;cursor:pointer;line-height:1.4}.option:hover:not(:disabled){border-color:var(--accent);background:#263957}.option:disabled{cursor:default}.option.correct{border-color:var(--good);background:#173d37}.option.wrong{border-color:var(--bad);background:#492532}
+.feedback{padding:14px;border-radius:12px;margin-top:14px;line-height:1.5;background:#202e4a}.feedback.good{border:1px solid #398b68}.feedback.bad{border:1px solid #a84b60}.feedback strong{display:block;margin-bottom:4px}
+.topline{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.score{font-weight:900;color:var(--gold)}.stage-icon{font-size:2rem;margin-bottom:5px}.small{font-size:.88rem;color:var(--muted)}.final-score{font-size:3.2rem;font-weight:900;color:var(--gold);margin:8px 0}.rank{font-size:1.25rem;font-weight:800;color:var(--accent)}
+footer{text-align:center;color:#8292b4;font-size:.82rem;padding:18px}
+</style>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <div class="eyebrow">Интерактивті білім сайысы</div>
+    <h1>🔎 ҒЫЛЫМИ <span>ДЕТЕКТИВ</span></h1>
+    <p class="subtitle">Ғылымды таны, ғалымды тап, ақпаратты тексер! Үш кезеңнен өтіп, өз тобыңның ғылыми білімін дәлелде.</p>
+    <div class="stats"><span class="pill">🧩 3 кезең</span><span class="pill">❓ 16 тапсырма</span><span class="pill">🏆 16 ұпайға дейін</span></div>
+  </header>
+
+  <section id="intro" class="card">
+    <h2>Ойынға қош келдің!</h2>
+    <p class="muted">Бұл ойын «Ғылым, білім, қызмет әлеуметтік институт ретінде» тақырыбына арналған. Әр сұраққа жауап беріп, түсіндірмесін оқы. Әр дұрыс жауапқа 1 ұпай беріледі.</p>
+    <p class="muted"><b>1-кезең:</b> Ғылыми детектив — 4 сұрақ<br><b>2-кезең:</b> Қай ғалым екенін тап — 5 сұрақ<br><b>3-кезең:</b> Ғылым ба, әлде жалған ақпарат па? — 7 сұрақ</p>
+    <div class="row"><button class="btn primary" id="startBtn">Ойынды бастау →</button></div>
+  </section>
+
+  <section id="game" class="card hidden" aria-live="polite">
+    <div class="topline"><div><div id="stageLabel" class="kicker"></div><div id="stageName" class="small"></div></div><div class="score">Ұпай: <span id="score">0</span></div></div>
+    <div class="progress"><div id="progressFill"></div></div>
+    <div id="questionCount" class="small"></div>
+    <div id="question" class="question"></div>
+    <div id="options" class="options"></div>
+    <div id="feedback" class="feedback hidden"></div>
+    <div class="row" style="margin-top:18px"><button id="nextBtn" class="btn primary hidden">Келесі сұрақ →</button></div>
+  </section>
+
+  <section id="result" class="card hidden">
+    <div class="stage-icon">🏆</div><div class="kicker">Ойын аяқталды</div>
+    <h2>Керемет жұмыс!</h2>
+    <div class="final-score"><span id="finalScore">0</span><span style="font-size:1.2rem;color:var(--muted)"> / 16 ұпай</span></div>
+    <div id="rank" class="rank"></div>
+    <p id="resultText" class="muted"></p>
+    <div class="progress"><div id="finalProgress"></div></div>
+    <div class="row"><button class="btn primary" id="restartBtn">↻ Қайта ойнау</button><button class="btn secondary" id="reviewBtn">Қорытындыны қарау</button></div>
+    <div id="review" class="hidden" style="margin-top:20px"></div>
+  </section>
+  <footer>Ғылымға күмәнмен қара — бірақ дәлелді тексеруді ұмытпа! ✨</footer>
+</main>
+<script>
+const stages = [
+ {label:"1-КЕЗЕҢ",name:"Ғылыми детектив",questions:[
+  {q:"Дәрінің шынымен әсер ететінін қалай анықтауға болады?",options:["Адамдардың пікіріне ғана сену","Ғылыми зерттеу және сынақ арқылы","Әлеуметтік желіден қарау"],answer:1,why:"Дәрінің тиімділігі ғылыми зерттеулер мен тиісті сынақтар арқылы тексеріледі."},
+  {q:"Қай тұжырым ғылыми ойлауға сәйкес келеді?",options:["Мен сенсем, демек ол рас","Дәлел болса да, тексерудің қажеті жоқ","Қорытындыны дәлелдермен тексеру керек"],answer:2,why:"Ғылыми таным дәлелге, тексеруге және сыни ойлауға сүйенеді."},
+  {q:"Жасанды интеллект қате жауап бере ала ма?",options:["Иә, сондықтан жауабын тексеру керек","Жоқ, ол әрқашан дұрыс","Тек интернет жоқ кезде"],answer:0,why:"Жасанды интеллект кейде қате немесе ойдан шығарылған ақпарат беруі мүмкін."},
+  {q:"Ғылыми білімді тәжірибеде қолдану нені көрсетеді?",options:["Ғылым мен практиканың байланысын","Ғылымның қажетсіздігін","Білімнің тоқтауын"],answer:0,why:"Ғылыми білім практикада қолданылғанда нақты мәселелерді шешуге көмектеседі."}
+ ]},
+ {label:"2-КЕЗЕҢ",name:"Қай ғалым екенін тап",questions:[
+  {q:"Мен ғылымды теориялық, практикалық және шығармашылық бағыттарға бөлдім. Мен кіммін?",options:["Аристотель","Огюст Конт","Шоқан Уәлиханов"],answer:0,why:"Аристотель білімді теориялық, практикалық және өнім өндіруге қатысты бағыттарға жіктеген."},
+  {q:"Мен ғылым салаларын жүйелеп, логика, математика және жаратылыстану бағыттарын зерттедім. Мен кіммін?",options:["Фрэнсис Бэкон","Әл-Фараби","Георг Гегель"],answer:1,why:"Әл-Фараби ғылымдарды жүйелеуге үлкен үлес қосқан ортағасырлық ойшыл."},
+  {q:"Мен қазақ халқының тарихын, мәдениетін және этнографиясын зерттедім. Мен кіммін?",options:["Ибн-Сина","Аристотель","Шоқан Уәлиханов"],answer:2,why:"Шоқан Уәлиханов — қазақтың көрнекті ғалымы, этнографы және тарихшысы."},
+  {q:"Мен ғылыми танымда тәжірибе мен бақылауға ерекше мән бердім. Мен кіммін?",options:["Фрэнсис Бэкон","Огюст Конт","Георг Гегель"],answer:0,why:"Фрэнсис Бэкон тәжірибеге сүйенетін эмпирикалық танымның дамуына ықпал етті."},
+  {q:"Мен қоғамды ғылыми тұрғыдан зерттеуге мән беріп, позитивизм бағытын дамыттым. Мен кіммін?",options:["Әл-Фараби","Огюст Конт","Ибн-Сина"],answer:1,why:"Огюст Конт позитивизмнің негізін қалаушылардың бірі және әлеуметтанудың қалыптасуына ықпал еткен ойшыл."}
+ ]},
+ {label:"3-КЕЗЕҢ",name:"Ғылым ба, әлде жалған ақпарат па?",questions:[
+  {q:"Жер Күнді айналады.",options:["Ғылыми негізі бар","Жалған немесе дәлелсіз"],answer:0,why:"Бұл — астрономиялық бақылаулармен және ғылыми теориялармен расталған факт."},
+  {q:"Жасанды интеллект ешқашан қателеспейді.",options:["Ғылыми негізі бар","Жалған немесе дәлелсіз"],answer:1,why:"ЖИ қате жауап беруі мүмкін, сондықтан нәтижелерін тексеру қажет."},
+  {q:"Ғылыми қорытынды дәлелдерге сүйенуі керек.",options:["Ғылыми негізі бар","Жалған немесе дәлелсіз"],answer:0,why:"Дәлелділік — ғылыми танымның негізгі белгілерінің бірі."},
+  {q:"Интернетте жарияланған ақпараттың бәрі шын.",options:["Ғылыми негізі бар","Жалған немесе дәлелсіз"],answer:1,why:"Интернетте қате және жалған ақпарат та кездеседі. Дереккөзді тексеру керек."},
+  {q:"Ғылыми теория жаңа дәлелдерге байланысты қайта қаралуы мүмкін.",options:["Ғылыми негізі бар","Жалған немесе дәлелсіз"],answer:0,why:"Ғылым жаңа деректерді ескеріп, бұрынғы түсініктерді нақтылай немесе өзгерте алады."},
+  {q:"Ғылым этикасы ғалымның жауапкершілігін қамтиды.",options:["Ғылыми негізі бар","Жалған немесе дәлелсіз"],answer:0,why:"Ғылым этикасы адалдықты, зерттеу қатысушыларының құқығын қорғауды және жауапкершілікті қамтиды."},
+  {q:"Ғылыми зерттеуде нәтижені әдемі көрсету үшін деректерді ойдан шығаруға болады.",options:["Ғылыми негізі бар","Жалған немесе дәлелсіз"],answer:1,why:"Деректерді ойдан шығару — ғылыми адалдықты бұзу."}
+ ]}
+];
+let stageIndex=0, questionIndex=0, score=0, locked=false, answers=[];
+const $=id=>document.getElementById(id);
+function start(){stageIndex=0;questionIndex=0;score=0;locked=false;answers=[];$("intro").classList.add("hidden");$("result").classList.add("hidden");$("game").classList.remove("hidden");renderQuestion();}
+function renderQuestion(){
+ locked=false;const stage=stages[stageIndex],item=stage.questions[questionIndex];
+ $("stageLabel").textContent=stage.label;$("stageName").textContent=stage.name;$("score").textContent=score;
+ const total=stages.reduce((n,s)=>n+s.questions.length,0),done=stages.slice(0,stageIndex).reduce((n,s)=>n+s.questions.length,0)+questionIndex;
+ $("progressFill").style.width=(done/total*100)+"%";
+ $("questionCount").textContent=`Сұрақ ${questionIndex+1} / ${stage.questions.length}`;
+ $("question").textContent=item.q;$("options").innerHTML="";$("feedback").className="feedback hidden";$("feedback").innerHTML="";$("nextBtn").classList.add("hidden");
+ item.options.forEach((opt,i)=>{const b=document.createElement("button");b.className="option";b.textContent=String.fromCharCode(65+i)+". "+opt;b.addEventListener("click",()=>choose(i));$("options").appendChild(b);});
+}
+function choose(choice){
+ if(locked)return;locked=true;const stage=stages[stageIndex],item=stage.questions[questionIndex],correct=choice===item.answer;
+ if(correct)score++;answers.push({stage:stage.name,q:item.q,chosen:item.options[choice],correct:item.options[item.answer],isCorrect:correct,why:item.why});
+ [...$("options").children].forEach((b,i)=>{b.disabled=true;if(i===item.answer)b.classList.add("correct");if(i===choice&&!correct)b.classList.add("wrong");});
+ $("score").textContent=score;$("feedback").className="feedback "+(correct?"good":"bad");$("feedback").innerHTML=`<strong>${correct?"✓ Дұрыс жауап! +1 ұпай":"✗ Бұл жолы дұрыс емес"}</strong>${item.why}`;
+ $("nextBtn").classList.remove("hidden");$("nextBtn").textContent=(questionIndex===stage.questions.length-1&&stageIndex===stages.length-1)?"Нәтижені көру →":"Келесі сұрақ →";
+}
+function next(){
+ if(!locked)return;
+ if(questionIndex<stages[stageIndex].questions.length-1)questionIndex++;
+ else if(stageIndex<stages.length-1){stageIndex++;questionIndex=0;}
+ else{finish();return;}
+ renderQuestion();
+}
+function finish(){
+ $("game").classList.add("hidden");$("result").classList.remove("hidden");$("finalScore").textContent=score;$("finalProgress").style.width=(score/16*100)+"%";
+ let rank,txt;if(score>=14){rank="🏅 Ғылым шебері!";txt="Тамаша нәтиже! Сен ғылыми ойлау мен ақпаратты тексеру дағдыларын жақсы меңгергенсің.";}else if(score>=10){rank="🔍 Үздік детектив!";txt="Жақсы нәтиже! Негізгі ұғымдарды білесің. Қате кеткен сұрақтарды қарап шық.";}else if(score>=6){rank="🧪 Жас зерттеуші!";txt="Жақсы бастама! Жауаптардың түсіндірмесін оқып, біліміңді бекіт.";}else{rank="📚 Ізденуші зерттеуші!";txt="Әр ойын — жаңа білім. Қорытындыларды қарап, қайта ойнап көр!"}
+ $("rank").textContent=rank;$("resultText").textContent=txt;$("review").classList.add("hidden");$("review").innerHTML="";
+}
+function showReview(){
+ const el=$("review");if(!el.classList.contains("hidden")){el.classList.add("hidden");return;}
+ el.innerHTML="<h3>Жауаптар қорытындысы</h3>"+answers.map((a,i)=>`<div style="padding:12px 0;border-bottom:1px solid #344564"><b>${i+1}. ${escapeHtml(a.q)}</b><div style="color:${a.isCorrect?'var(--good)':'var(--bad)'};margin-top:5px">${a.isCorrect?'✓ Дұрыс':'✗ Дұрыс жауап: '+escapeHtml(a.correct)}</div><div class="small" style="margin-top:4px">${escapeHtml(a.why)}</div></div>`).join("");
+ el.classList.remove("hidden");
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+$("startBtn").addEventListener("click",start);$("nextBtn").addEventListener("click",next);$("restartBtn").addEventListener("click",start);$("reviewBtn").addEventListener("click",showReview);
+</script>
+</body>
+</html>
